@@ -70,11 +70,16 @@ def upload_file():
                 except:
                     title.append('')
 
-            columns = ['message id', 'Date and Time', 'form name', 'title', 'description']
+            index = []
+            for i in range(1, len(message_id) + 1):
+                index.append(i)
 
-            data = list(zip(message_id, date_time, from_name, title, description))
-            df = pd.DataFrame(data, columns=columns)
-            return df.to_json()
+            keys = ['index','message id', 'Date and Time', 'form name', 'title', 'description']
+
+            tuples = list(zip(index,message_id, date_time, from_name, title, description))
+            df = pd.DataFrame(tuples, columns=keys)
+            trans_df = df.set_index("index").T
+            return trans_df.to_dict()
             
         else:
             flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
@@ -82,4 +87,4 @@ def upload_file():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='127.0.0.1',port=6789)
