@@ -2,9 +2,16 @@
 <title>Python Flask File Upload Example</title>
 <h2>Select a file to upload</h2>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script> -->
+<!-- <script src="jquery.table2excel.js"></script> -->
+<link rel="stylesheet" type="text/css" href="http://www.shieldui.com/shared/components/latest/css/light/all.min.css" />
+<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js"></script>
+<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
+
 <p>
 	{% with messages = get_flashed_messages() %}
 	  {% if messages %}
@@ -16,7 +23,7 @@
 	  {% endif %}
 	{% endwith %}
 </p>
-<form method="post" action="/" enctype="multipart/form-data">
+<form id="id_form" method="post" action="" enctype="multipart/form-data">
     <dl>
 		<p>
 			<input class="btn btn-secondary" type="file" name="file" autocomplete="off" required>
@@ -24,5 +31,134 @@
     </dl>
     <p>
 		<input class="btn btn-success" type="submit" value="Submit">
+		<input style="display:none" class="btn btn-success" id="clickbind" type="button" value="Print">
 	</p>
 </form>
+<table class="table table-bordered" id="exportTable" style="display:none">
+	<thead>
+		<tr>
+			<th>DateAndTime</th>
+			<th>Description</th>
+			<th>FormName</th>
+			<th>MessageId</th>
+			<th>Title</th>
+		</tr>
+	</thead>
+	<tbody id="records_table">
+	</tbody>
+</table>
+<script>
+$("#id_form").submit(function(e) {
+	e.preventDefault();
+	var formData = new FormData(this);
+
+	$.ajax({
+			url: '/',
+			type: 'POST',
+			data: formData,
+			success: function (response) {
+				var trHTML = '';
+        $.each(response, function (i, item) {
+            trHTML += '<tr><td>' + item['Date and Time'] + '</td><td>' + item.description + '</td><td>' + item['form name'] + '</td><td>' + item['message id'] + '</td><td>' + item.title + '</td></tr>';
+        });
+        $('#records_table').append(trHTML);
+				$('.table').css('display','block')
+				$('#clickbind').css('display','inline')
+			},
+			cache: false,
+			contentType: false,
+			processData: false
+	});
+});
+
+
+
+</script>
+
+<script type="text/javascript">
+	jQuery(function ($) {
+			$("#clickbind").click(function () {
+					// parse the HTML table element having an id=exportTable
+					var dataSource = shield.DataSource.create({
+							data: "#exportTable",
+							schema: {
+									type: "table",
+									fields: {
+											DateAndTime: { type: String },
+											Description: { type: String },
+											FormName: { type: String },
+											MessageId: { type: String },
+											Title: { type: String },
+									}
+							}
+					});
+
+					// when parsing is done, export the data to Excel
+					dataSource.read().then(function (data) {
+							new shield.exp.OOXMLWorkbook({
+									author: "Sample",
+									worksheets: [
+											{
+													name: "Sample Table",
+													rows: [
+															{
+																	cells: [
+																			{
+																					style: {
+																							bold: true
+																					},
+																					type: String,
+																					value: "DateAndTime"
+																			},
+																			{
+																					style: {
+																							bold: true
+																					},
+																					type: String,
+																					value: "Description"
+																			},
+																			{
+																					style: {
+																							bold: true
+																					},
+																					type: String,
+																					value: "FormName"
+																			},
+																			{
+																					style: {
+																							bold: true
+																					},
+																					type: String,
+																					value: "MessageId"
+																			},
+																			{
+																					style: {
+																							bold: true
+																					},
+																					type: String,
+																					value: "Title",
+																					colSpan: 3
+
+																			}
+																	]
+															}
+													].concat($.map(data, function(item) {
+															return {
+																	cells: [
+																			{ type: String, value: item.DateAndTime },
+																			{ type: String, value: item.Description },
+																			{ type: String, value: item.FormName },
+																			{ type: String, value: item.MessageId },
+																			{ type: String, value: item.Title }
+																	]
+															};
+													}))
+											}
+									]
+							}).saveAs({
+									fileName: "SampleExcel"
+							});
+					});
+			});
+	});
+</script>
