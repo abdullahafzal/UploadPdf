@@ -28,10 +28,13 @@
 		<p>
 			<input class="btn btn-secondary" type="file" name="file" autocomplete="off" required>
 		</p>
+		<p>
+			once you press submit, kindly wait so we can process your file.
+		</p>
     </dl>
     <p>
 		<input class="btn btn-success" type="submit" value="Submit">
-		<input style="display:none" class="btn btn-success" id="clickbind" type="button" value="Print">
+		<input style="display:none" class="btn btn-success" id="clickbind" type="button" value="Download as Excel">
 	</p>
 </form>
 <table class="table table-bordered" id="exportTable" style="display:none">
@@ -42,6 +45,8 @@
 			<th>FormName</th>
 			<th>MessageId</th>
 			<th>Title</th>
+			<th>Text</th>
+
 		</tr>
 	</thead>
 	<tbody id="records_table">
@@ -59,7 +64,7 @@ $("#id_form").submit(function(e) {
 			success: function (response) {
 				var trHTML = '';
         $.each(response, function (i, item) {
-            trHTML += '<tr><td>' + item['Date and Time'] + '</td><td>' + item.description + '</td><td>' + item['form name'] + '</td><td>' + item['message id'] + '</td><td>' + item.title + '</td></tr>';
+            trHTML += '<tr><td>' + item['Date and Time'] + '</td><td>' + item.description + '</td><td>' + item['form name'] + '</td><td>' + item['message id'] + '</td><td>' + item.title + '</td><td>' + item.text +'</td></tr>';
         });
         $('#records_table').append(trHTML);
 				$('.table').css('display','block')
@@ -89,6 +94,7 @@ $("#id_form").submit(function(e) {
 											FormName: { type: String },
 											MessageId: { type: String },
 											Title: { type: String },
+											Text: { type: String },
 									}
 							}
 					});
@@ -139,6 +145,15 @@ $("#id_form").submit(function(e) {
 																					value: "Title",
 																					colSpan: 3
 
+																			},
+																			{
+																					style: {
+																							bold: true
+																					},
+																					type: String,
+																					value: "Text",
+																					colSpan: 4
+
 																			}
 																	]
 															}
@@ -149,7 +164,9 @@ $("#id_form").submit(function(e) {
 																			{ type: String, value: item.Description },
 																			{ type: String, value: item.FormName },
 																			{ type: String, value: item.MessageId },
-																			{ type: String, value: item.Title }
+																			{ type: String, value: item.Title },
+																			{ type: String, value: item.Text }
+
 																	]
 															};
 													}))

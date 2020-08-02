@@ -35,16 +35,16 @@ def upload_file():
             return redirect(request.url)
         if file:
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            f = codecs.open(filename, 'r', encoding="utf8")
-            html = f.read()
+            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            # f = codecs.open(filename, 'r', encoding="utf8")
+            html = file.read()
             soup = BeautifulSoup(html, 'html.parser')
             message_id = []
             date_time = []
             description = []
             from_name = []
             title = []
-
+            text = []
             for message in soup.find_all('div', attrs={'class': 'message'}):
                 try:
                     message_id.append(message['id'])
@@ -70,13 +70,18 @@ def upload_file():
                 except:
                     title.append('')
 
+                try:
+                    text.append(message.find('div', attrs={'class': 'text'}).text)
+                except:
+                    text.append('')
+
             index = []
             for i in range(1, len(message_id) + 1):
                 index.append(i)
 
-            keys = ['index','message id', 'Date and Time', 'form name', 'title', 'description']
+            keys = ['index','message id', 'Date and Time', 'form name', 'title', 'description', 'text']
 
-            tuples = list(zip(index,message_id, date_time, from_name, title, description))
+            tuples = list(zip(index,message_id, date_time, from_name, title, description, text))
             df = pd.DataFrame(tuples, columns=keys)
             trans_df = df.set_index("index").T
             return trans_df.to_dict()
