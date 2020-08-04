@@ -22,7 +22,7 @@ def upload_form():
     return render_template('upload.html')
 
 
-@app.route('/', methods=['POST','GET'])
+@app.route('/', methods=['POST', 'GET'])
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
@@ -79,17 +79,17 @@ def upload_file():
             for i in range(1, len(message_id) + 1):
                 index.append(i)
 
-            keys = ['index','message id', 'Date and Time', 'form name', 'title', 'description', 'text']
+            keys = ['index', 'message id', 'Date and Time', 'form name', 'title', 'description', 'text']
 
-            tuples = list(zip(index,message_id, date_time, from_name, title, description, text))
+            tuples = list(zip(index, message_id, date_time, from_name, title, description, text))
             df = pd.DataFrame(tuples, columns=keys)
             trans_df = df.set_index("index").T
             return trans_df.to_dict()
-            
+
         else:
             flash('Allowed file types are txt, pdf, png, jpg, jpeg, gif')
             return redirect(request.url)
 
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1',port=6789)
+    app.run(host='127.0.0.1', port=6789)

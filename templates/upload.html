@@ -8,9 +8,20 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script> -->
 <!-- <script src="jquery.table2excel.js"></script> -->
-<link rel="stylesheet" type="text/css" href="http://www.shieldui.com/shared/components/latest/css/light/all.min.css" />
+<!-- <link rel="stylesheet" type="text/css" href="http://www.shieldui.com/shared/components/latest/css/light/all.min.css" />
 <script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/shieldui-all.min.js"></script>
-<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script>
+<script type="text/javascript" src="http://www.shieldui.com/shared/components/latest/js/jszip.min.js"></script> -->
+
+<!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/datatables.min.css"/>-->
+
+<!--<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.21/datatables.min.js"></script>-->
+
+<!--<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>-->
+
+<!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"></link>-->
+
+<!--<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css"></link>-->
+
 
 <p>
 	{% with messages = get_flashed_messages() %}
@@ -28,16 +39,16 @@
 		<p>
 			<input class="btn btn-secondary" type="file" name="file" autocomplete="off" required>
 		</p>
-		<p>
-			once you press submit, kindly wait so we can process your file.
-		</p>
     </dl>
     <p>
 		<input class="btn btn-success" type="submit" value="Submit">
-		<input style="display:none" class="btn btn-success" id="clickbind" type="button" value="Download as Excel">
+		<!-- <input style="display:none" class="btn btn-success" id="clickbind" type="button" value="Print"> -->
+		<!-- <button class="btn btn-success" id="clickbind" onclick="exportTableToExcel('exportTable', 'members-data')">PRINT</button> -->
+    <button style="display:none"  class="btn btn-success" id="clickbind" onclick="tableToExcel('exportTable', 'W3C Example Table')">Export</button>
+
 	</p>
 </form>
-<table class="table table-bordered" id="exportTable" style="display:none">
+<table class="table table-bordered" id="exportTable" style="display:none;overflow-x:auto">
 	<thead>
 		<tr>
 			<th>DateAndTime</th>
@@ -46,7 +57,6 @@
 			<th>MessageId</th>
 			<th>Title</th>
 			<th>Text</th>
-
 		</tr>
 	</thead>
 	<tbody id="records_table">
@@ -64,10 +74,10 @@ $("#id_form").submit(function(e) {
 			success: function (response) {
 				var trHTML = '';
         $.each(response, function (i, item) {
-            trHTML += '<tr><td>' + item['Date and Time'] + '</td><td>' + item.description + '</td><td>' + item['form name'] + '</td><td>' + item['message id'] + '</td><td>' + item.title + '</td><td>' + item.text +'</td></tr>';
+            trHTML += '<tr><td>' + item['Date and Time'] + '</td><td>' + item.description + '</td><td>' + item['form name'] + '</td><td>' + item['message id'] + '</td><td>' + item.title + '</td><td>' + item.text + '</td></tr>';
         });
         $('#records_table').append(trHTML);
-				$('.table').css('display','block')
+				$('.table').css('display','table')
 				$('#clickbind').css('display','inline')
 			},
 			cache: false,
@@ -79,7 +89,7 @@ $("#id_form").submit(function(e) {
 
 
 </script>
-
+<!--
 <script type="text/javascript">
 	jQuery(function ($) {
 			$("#clickbind").click(function () {
@@ -143,7 +153,6 @@ $("#id_form").submit(function(e) {
 																					},
 																					type: String,
 																					value: "Title",
-																					colSpan: 3
 
 																			},
 																			{
@@ -152,7 +161,6 @@ $("#id_form").submit(function(e) {
 																					},
 																					type: String,
 																					value: "Text",
-																					colSpan: 4
 
 																			}
 																	]
@@ -166,7 +174,6 @@ $("#id_form").submit(function(e) {
 																			{ type: String, value: item.MessageId },
 																			{ type: String, value: item.Title },
 																			{ type: String, value: item.Text }
-
 																	]
 															};
 													}))
@@ -178,4 +185,62 @@ $("#id_form").submit(function(e) {
 					});
 			});
 	});
+</script> -->
+
+<!-- <script>
+	$(document).ready(function() {
+    $('#exportTable').DataTable( {
+        dom:  'T<"clear">lfrtip',
+				buttons: [
+				'copy', 'csv', 'excel', 'pdf', 'print'
+		]
+    } );
+} );
+</script> -->
+<!--
+<script>
+	function exportTableToExcel(tableID, filename = ''){
+    var downloadLink;
+    var dataType = 'application/vnd.ms-excel';
+    var tableSelect = document.getElementById(tableID);
+    var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+
+    // Specify file name
+    filename = filename?filename+'.pdf':'excel_data.pdf';
+
+    // Create download link element
+    downloadLink = document.createElement("a");
+
+    document.body.appendChild(downloadLink);
+
+    if(navigator.msSaveOrOpenBlob){
+        var blob = new Blob(['\ufeff', tableHTML], {
+            type: dataType
+        });
+        navigator.msSaveOrOpenBlob( blob, filename);
+    }else{
+        // Create a link to the file
+        downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+
+        // Setting the file name
+        downloadLink.download = filename;
+
+        //triggering the function
+        downloadLink.click();
+    }
+}
+</script> -->
+
+<script type="text/javascript">
+var tableToExcel = (function() {
+  var uri = 'data:application/vnd.ms-excel;base64,'
+    , template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+    , base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
+    , format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
+  return function(table, name) {
+    if (!table.nodeType) table = document.getElementById(table)
+    var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
+    window.location.href = uri + base64(format(template, ctx))
+  }
+})()
 </script>
